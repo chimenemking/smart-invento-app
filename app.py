@@ -55,7 +55,7 @@ elif page == "Record Transaction":
     df = get_all_items_df()
     if not df.empty:
         item_name = st.selectbox("Item", df['name'].tolist())
-        item_id = df[df['name'] == item_name]['id'].iloc[0]
+        item_id = int(df[df['name'] == item_name]['id'].iloc[0])
         
         transaction_type = st.radio("Type", ["Sale", "Purchase"])
         qty = st.number_input("Quantity", min_value=0.01, step=1.0)
@@ -76,19 +76,19 @@ elif page == "Forecast & Trends":
     st.header("Forecast & Demand Trends")
     df = get_all_items_df()
     if not df.empty:
-        item_name = st.selectbox("Select item", df['name'].tolist())
-        item_id = df[df['name'] == item_name]['id'].iloc[0]
+        item_name = st.selectbox("Select item", df['name'].tolist(), key="forecast_select")
+        item_id = int(df[df['name'] == item_name]['id'].iloc[0])
         
-        forecast = forecast_depletion(item_id)
+        forecast_result = forecast_depletion(item_id)
         
-        if 'error' in forecast:
-            st.error(forecast['error'])
+        if 'error' in forecast_result:
+            st.error(forecast_result['error'])
         else:
             col1, col2 = st.columns(2)
             with col1:
-                st.metric("Predicted Daily Demand", f"{forecast['predicted_daily_demand']} units/day")
+                st.metric("Predicted Daily Demand", f"{forecast_result['predicted_daily_demand']} units/day")
             with col2:
-                st.metric("Days Until Stockout", f"{forecast['days_until_stockout']} days")
+                st.metric("Days Until Stockout", f"{forecast_result['days_until_stockout']} days")
             
             # Historical demand chart
             history = get_daily_demand_history(item_id)

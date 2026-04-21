@@ -10,7 +10,7 @@ def get_daily_demand_history(item_id):
         return pd.Series([])
     
     # Filter only sales (negative quantity_sold means sale)
-    sales_df = df[df['quantity_sold'] < 0].copy()
+    sales_df = df[df['quantity_sold'] > 0].copy()
     sales_df['quantity_sold'] = sales_df['quantity_sold'].abs()
     sales_df['date'] = pd.to_datetime(sales_df['date'])
     

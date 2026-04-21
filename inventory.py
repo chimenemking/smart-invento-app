@@ -12,23 +12,30 @@ def add_item(name, initial_qty=0, reorder_point=10, lead_time=7):
     session.close()
     return item_id
 
-def update_stock(item_id, delta_qty, reason="sale"):
+def update_stock(item_id, delta_qty, reason="sale", transaction_date=None):
+    if transaction_date is None:
+        transaction_date = date.today()
+    
     session = get_session()
     item = session.query(Item).filter(Item.id == item_id).first()
     if item:
         item.current_quantity += delta_qty
         # Log to sales history (negative for sales, positive for purchases)
-        sale_record = SalesHistory(item_id=item_id, date=date.today(), 
-                                    quantity_sold= -delta_qty if reason == "sale" else delta_qty)
-        session.add(sale_record)
+        qty_log = -delta_qty if reason == "sale" else delta_qty
+        history_record = SalesHistory(
+            item_id=item_id, 
+            date=transaction_date, 
+            quantity_sold=qty_log
+        )
+        session.add(history_record)
         session.commit()
     session.close()
 
-def record_sale(item_id, qty):
-    update_stock(item_id, -qty, "sale")
+def record_sale(item_id, qty, sale_date=None):
+    update_stock(item_id, -qty, reason="sale", transaction_date=sale_date)
 
-def record_purchase(item_id, qty):
-    update_stock(item_id, qty, "purchase")
+def record_purchase(item_id, qty, purchase_date=None):
+    update_stock(item_id, qty, reason="purchase", transaction_date=purchase_date)
 
 def get_all_items_df():
     session = get_session()

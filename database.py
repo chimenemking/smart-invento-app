@@ -16,7 +16,7 @@ class SalesHistory(Base):
     __tablename__ = 'sales_history'
     id = Column(Integer, primary_key=True)
     item_id = Column(Integer, ForeignKey('items.id'))
-    date = Column(Date, default=date.today)
+    date = Column(Date)
     quantity_sold = Column(Float)
 
 # Create engine and session
